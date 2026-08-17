@@ -7,6 +7,7 @@
 import assert from 'node:assert';
 import { Writable } from 'node:stream';
 import { once } from 'node:events';
+import { fileURLToPath } from 'node:url';
 import { apply } from '../lib/index.js';
 
 /* ---------------- 模拟 DSH 环境 ---------------- */
@@ -95,7 +96,6 @@ async function hit(webServer, req) {
   const res = fakeRes();
   await route.handler(req, res);
   if (!res.result.body.length || !res.done) {
-    // 等待流式桥接完成
     try { await once(res, 'finish'); } catch (_) { /* ignore */ }
   }
   return res.result;
@@ -103,7 +103,7 @@ async function hit(webServer, req) {
 
 /* ---------------- 测试 ---------------- */
 
-const SECRET_FILE = new URL('../auth-secret.txt', import.meta.url).pathname;
+const SECRET_FILE = fileURLToPath(new URL('../auth-secret.txt', import.meta.url));
 const env = makeMockEnv(
   {
     'session/list': async () => ({ ok: true, value: [{ id: 's1' }] }),
@@ -231,7 +231,7 @@ r = await hit(env.webServer, fakeReq({
   body: Buffer.from(JSON.stringify({ type: 'client-request', rpcId: '8', method: 'extra/thing', payload: { args: {} } })),
 }));
 assert.strictEqual(r.status, 401);
-console.log('✓ 14. extraDomains 自定义域同样被门禁');
+console.log('✓ 14. extraEndpoints 自定义端点同样被门禁');
 
 // ---- 15. 登录限速 ----
 let limited = false;

@@ -27,6 +27,7 @@
 
 import { toFetchHandler } from '@deepseek-ai/dsh-host-apiproxy';
 import { Readable } from 'node:stream';
+import { fileURLToPath } from 'node:url';
 import {
   loadSecret,
   makeToken,
@@ -188,7 +189,7 @@ export function apply(ctx, config) {
   const cookieName = config?.cookieName ?? 'dsh_session';
   const maxAge = sessionDays * 86400;
   const trustedHosts = config?.trustedHosts ?? [];
-  const secret = loadSecret(config?.secretFile ?? new URL('../auth-secret.txt', import.meta.url).pathname);
+  const secret = loadSecret(config?.secretFile ?? fileURLToPath(new URL('../auth-secret.txt', import.meta.url)));
   const limiter = createRateLimiter(config?.rateLimitMax ?? 8, 60);
 
   const isAuthed = (req) =>
