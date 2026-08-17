@@ -40,6 +40,6 @@
   },
   "license": "MIT",
   "scripts": {
-    "test": "node test/auth-core.test.mjs"
+    "test": "node test/auth-core.test.mjs && node test/client-load.test.mjs && node test/harness.test.mjs"
   }
 }
