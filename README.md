@@ -1,6 +1,13 @@
 # dsh-auth-session
 
+[![npm version](https://img.shields.io/npm/v/dsh-auth-session)](https://www.npmjs.com/package/dsh-auth-session)
+[![npm downloads](https://img.shields.io/npm/dm/dsh-auth-session)](https://www.npmjs.com/package/dsh-auth-session)
+[![license](https://img.shields.io/npm/l/dsh-auth-session)](https://github.com/siwuli/dsh-auth-session)
+
 DSH (DeepSeek Harness) Web GUI **登录认证插件**：Cookie 会话登录，让 DSH 通过反向代理暴露到公网时也有自己的登录保护。
+
+- 📦 npm: [dsh-auth-session](https://www.npmjs.com/package/dsh-auth-session)
+- 🐙 GitHub: [siwuli/dsh-auth-session](https://github.com/siwuli/dsh-auth-session)
 
 ## 解决的问题
 
@@ -64,13 +71,38 @@ node test/harness.test.mjs
 
 ## 发布与安装
 
-```sh
-# 发布 (需 npm 账号)
-npm publish
+✅ **已发布**: `dsh-auth-session@0.1.0` (2026-08-18, npm + GitHub)
 
-# 用户安装 (本地开发可先用 link: 或 file: 路径)
-dsh plugin --profile web add dsh-auth-session
+```sh
+# 用户安装 (npm 已发布)
+dsh plugin --profile <profile名> add dsh-auth-session
+# 本地开发可先用 link: 或 file: 路径, 免发布
+dsh plugin --profile <profile名> add link:<插件源码绝对路径>
+
 # 验证组合树 (无需重启)
-dsh --profile web --dump-config
+dsh --profile <profile名> --dump-config
+
+# 配置密码: 编辑 ~/.dsh/profiles/<profile名>/cordis.patch.yml
+#   - id: auth-session
+#     config:
+#       password: '你的强密码'
+
 # 重启 dsh web 生效
+```
+
+### 发布新版本
+
+```sh
+# 1. 更新 version (package.json), 提交并推送 GitHub
+npm version patch
+git add -A && git commit -m "v0.1.1"
+
+# 2. 推送 GitHub (工作区仓库, 插件在子目录时用 subtree)
+git subtree split -P dsh-auth-session -b plugin-split
+git push origin plugin-split:main
+git branch -D plugin-split
+
+# 3. 发布 npm (令牌已在 npm 配置中)
+cd dsh-auth-session
+npm publish
 ```
