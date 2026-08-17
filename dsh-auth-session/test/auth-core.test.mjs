@@ -1,10 +1,8 @@
-'use strict';
-/* auth-core 单元测试: node test/auth-core.test.js */
-const assert = require('assert');
-const {
+﻿import assert from 'node:assert';
+import {
   makeToken, parseToken, tokenFromCookieHeader,
   sessionCookieHeader, safeEqual, createRateLimiter,
-} = require('../lib/auth-core');
+} from '../lib/auth-core.js';
 
 const SECRET = 'test-secret-1234567890';
 
@@ -57,4 +55,4 @@ assert.ok(!limiter('1.2.3.4'));
 assert.ok(limiter('1.2.3.4'), '第4次应被限制');
 assert.ok(!limiter('5.6.7.8'), '不同IP不受影响');
 
-console.log('✓ 全部 10 组测试通过 (auth-core)');
+console.log('✓ 全部 10 组测试通过 (auth-core ESM)');

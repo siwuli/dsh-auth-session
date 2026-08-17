@@ -1,7 +1,7 @@
 {
   "name": "dsh-auth-session",
   "version": "0.1.0",
-  "description": "DSH (DeepSeek Harness) Web GUI login/session authentication plugin: cookie-based session login with login page, /api gating and rate limiting.",
+  "description": "DSH (DeepSeek Harness) Web GUI login/session authentication plugin: cookie-based session login with login overlay, /api gating and rate limiting.",
   "keywords": [
     "dsh",
     "deepseek-harness",
@@ -10,19 +10,33 @@
     "session",
     "cordis"
   ],
-  "license": "MIT",
+  "type": "module",
   "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  },
   "files": [
     "lib",
-    "src"
+    "src",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
   ],
   "engines": {
-    "node": ">=18"
+    "node": "^22.19.0 || >=24.0.0"
   },
+  "license": "MIT",
   "scripts": {
-    "test": "node test/auth-core.test.js"
-  },
-  "peerDependencies": {
-    "cordis": "^4"
+    "test": "node test/auth-core.test.mjs"
   }
 }
