@@ -35,6 +35,9 @@
   "engines": {
     "node": "^22.19.0 || >=24.0.0"
   },
+  "devDependencies": {
+    "@deepseek-ai/dsh-host-apiproxy": "^0.1.0-rc.7"
+  },
   "license": "MIT",
   "scripts": {
     "test": "node test/auth-core.test.mjs"
