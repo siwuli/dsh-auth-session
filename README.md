@@ -71,7 +71,7 @@ node test/harness.test.mjs
 
 ## 发布与安装
 
-✅ **已发布**: `dsh-auth-session@0.1.0` (2026-08-18, npm + GitHub)
+✅ **已发布**: `dsh-auth-session@0.1.1` (2026-08-18, npm + GitHub)
 
 ```sh
 # 用户安装 (npm 已发布)
