@@ -6,7 +6,7 @@ DeepSeek Harness (DSH) 第三方插件开发工作区。
 
 | 包 | 说明 | 状态 |
 |---|---|---|
-| [dsh-auth-session](./dsh-auth-session) | DSH Web GUI 登录认证插件（Cookie 会话登录） | ✅ 开发完成, 测试全通过 |
+| [dsh-auth-session](./dsh-auth-session) | DSH Web GUI 登录认证插件（Cookie 会话登录） | ✅ 已发布 npm@0.1.0 + GitHub |
 
 ## 环境
 
