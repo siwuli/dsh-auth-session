@@ -603,3 +603,35 @@ const trustedHosts = options.authority === "loopback" ? [] : this.trustedHosts;
 | 完整双面 Typert 插件 | `dsh-message-feedback/lib/index.js`（+ `lib/typert.host.js`） |
 | Cordis 插件/Service/依赖语义 | `cordis/lib/index.js`（`plugin()` :1618，`resolve()` :1532，`Service` :1741，`Inject.resolve` :1490，config 校验 :955） |
 | Loader 行/patch 组合格式 | `cordis-plugin-loader/lib/index.js`（`unwrapExports` :736）+ `dsh-web-app/cordis.patch.yml` |
+
+## 7. 补充核实: connection 获取 / toFetchHandler 转发 / authority / ctx.effect
+
+### 7.1 拿 connection 服务 (两种写法都通, 推荐声明式 inject)
+- 插件级 `inject: ["connection", "apiProxy"]` 后直接 `ctx.connection.rpc.intercept(...)`:
+  Cordis 等到服务 provide 且 ACTIVE 才运行 apply (epoch 机制, cordis/lib/index.js:1316-1343);
+  直接属性访问若名字不在 inject 里抛 `cannot get property "connection" without inject` (cordis:675)。
+- `ctx.get("connection")?.rpc.intercept(...)` 免 inject, 未提供时返回 undefined (cordis:762-771),
+  需自行保证时序 (仍可用 `ctx.inject(["connection"], cb)`, cordis:1599-1605)。
+- 所有权: HostConnectionService.rpc getter 捕获的 owner 经 traceable proxy 重绑为读取方 fiber 的 ctx,
+  interceptor 属于你的插件生命周期, 卸载自动移除。
+- ⚠️ /api interceptor 座位全局唯一 (dsh-client-connection/lib/index.js:267 重复注册抛错),
+  base 层 dsh-base/cordis.patch.yml:36-37 的 typert-gateway 已占用。
+
+### 7.2 toFetchHandler 与转发
+- `toFetchHandler` 从 `@deepseek-ai/dsh-host-apiproxy` 根导出 (lib/index.js:5587),
+  dsh-client-connection 自己就这么用 (:548), 返回 `{fetch(Request): Promise<Response>}`。
+- 转发姿势: ①matches 只 claim 需认证端点, 未命中自动走 fallback 到 apiProxy (零转发代码);
+  ②claim 后手动转发: 重建 envelope 后 `toFetchHandler(ctx.apiProxy).fetch(new Request(...))` 取 body.result
+  (envelope 须满足 clientRequestSchema, method 必须等于 endpoint); ③InProcessApiClient 方法级调用。
+- 若禁了 gateway 想保留 Typert 端点: gateway 的 dispatchRpc/invokeRpc 是公开方法返回 RpcResult, 可复刻派发
+  (成本高, 默认建议保留 gateway)。
+
+### 7.3 authority 后果
+- interceptor 路径 (lib/index.js:237): 仅 `authority==='loopback'` 时用空信任列表再判一次
+  (只有 loopback Host + 同源 + 非 cross-site 放行); `'trusted-host'` 不再加检查, 完全信外层 /api 路由围栏。
+- 自建 channel 的 register 等价但提前选列表 (:243)。纯 127.0.0.1 部署两者无差别。
+
+### 7.4 ctx.effect
+- `ctx.effect(execute, label)` 是 Cordis 注册资源的正解 (cordis/lib/index.js:1168-1278:
+  立即 setup, fiber 卸载逆序清理, 支持 sync/async/generator); DSH 全仓库统一用它包路由/拦截器/回退。
+- `ctx.on("ready")` 不存在; "等就绪"的官方语义是声明式 inject + apply, 或 ctx.inject 延迟子 fiber。
