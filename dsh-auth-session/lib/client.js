@@ -13,6 +13,10 @@ window.__ModuleLoader__.load({
   factory: (require) => {
     'use strict';
 
+    // CommonJS 垫片: dsh 客户端加载器只注入 require, 不提供全局 module
+    var module = { exports: {} };
+    var exports = module.exports;
+
     const CHECK_URL = '/api/auth-check';
     const LOGIN_URL = '/login';
 

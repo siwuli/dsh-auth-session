@@ -1,6 +1,6 @@
 {
   "name": "dsh-auth-session",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "DSH (DeepSeek Harness) Web GUI login/session authentication plugin: cookie-based session login with login overlay, /api gating and rate limiting.",
   "keywords": [
     "dsh",
