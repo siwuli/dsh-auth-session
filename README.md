@@ -35,7 +35,9 @@ DSH 宿主端插件 (dsh-auth-session)
   ├─ tapIndex: index.html 注入认证检查脚本
   ├─ exact 路由: /api/<端点>  (点分端点, 来自 apiProxy 的 UNARY_ROUTES)
   ├─ prefix 路由: /api/<命名空间> (typert Remote 端点, 动态枚举)
-  └─ 桥接: 已登录请求经 toFetchHandler 转发给 apiProxy
+  └─ 桥接: 已登录请求交回 client-connection 的共享 RPC 链
+     (createSharedFetchHandler: typert 端点 → api-gateway dispatchRpc,
+      点分端点 → apiProxy toFetchHandler)
 ```
 
 ## 配置 (cordis patch)
@@ -60,6 +62,12 @@ DSH 宿主端插件 (dsh-auth-session)
 3. **第三方插件新增的 `/api/<新端点>`**：若不在上述两类枚举内，需在 `extraEndpoints` 配置补充。
 4. 登录页表单提交 → 302，重定向由插件自身处理（无需代理层配合）。
 
+## 版本历史
+
+- **v0.1.3** (2026-08-18): 🐛 修复 typert Remote 端点被 404 的桥接缺陷。旧版把认证后的请求一律桥接给 `apiProxy`（只认点分端点），导致 `pluginInventory/list`（设置页插件列表）、`goal.list`、`typert.registry.list` 等 `namespace/method` 形式的端点全部 404。现改为复用 client-connection 的 `createSharedFetchHandler`，typert 端点走 `api-gateway` 的 `dispatchRpc`，点分端点回退 `apiProxy`，与 DSH 原生 `/api` 路由行为一致。新增回归测试 6b 覆盖插件列表端点。
+- **v0.1.2** (2026-08-18): 🐛 修复会话密钥文件路径在 Windows 下用 `fileURLToPath`（持久化，重启不失效）；新增客户端加载回归测试。
+- **v0.1.1** (2026-08-18): ✨ 首次发布（Cookie 会话登录、`/api` 门禁、限速、信任围栏、登录页）。
+
 ## 开发与测试
 
 ```sh
@@ -67,11 +75,13 @@ DSH 宿主端插件 (dsh-auth-session)
 node test/auth-core.test.mjs
 # 模拟集成测试 (在模拟 DSH webServer 环境验证完整登录流程)
 node test/harness.test.mjs
+# 全部
+npm test
 ```
 
 ## 发布与安装
 
-✅ **已发布**: `dsh-auth-session@0.1.1` (2026-08-18, npm + GitHub)
+✅ **已发布**: `dsh-auth-session@0.1.3` (2026-08-18, npm + GitHub)
 
 ```sh
 # 用户安装 (npm 已发布)
